@@ -222,7 +222,8 @@ export const accessTokenValidator = validate(
             //cần verify access_token và lấy payload ra lưu lại trong req
             try {
               const decoded_authorization = await verifyToken({ token: access_token })
-              req.decoded_authorization = decoded_authorization
+              ;(req as Request).decoded_authorization = decoded_authorization
+              //  COI VÀ LƯU Ý CHỖ NÀY (CÓ KIẾN THỨC)
             } catch (err) {
               throw new ErrorWithStatus({
                 message: capitalize((err as JsonWebTokenError).message),
@@ -249,18 +250,21 @@ export const refreshTokenValidator = validate(
         custom: {
           options: async (value, { req }) => {
             try {
-              const decoded_refresh_token = await verifyToken({ token: value })
+              const [decoded_refresh_token, refresh_token] = await Promise.all([
+                verifyToken({ token: value }),
+                databaseService.refreshTokens.findOne({
+                  token: value
+                })
+              ])
               //check token có tồn tại hay ko
-              const refresh_token = await databaseService.refreshTokens.findOne({
-                token: value
-              })
+
               if (refresh_token === null) {
                 throw new ErrorWithStatus({
                   message: USERS_MESSAGES.USED_REFRESH_TOKEN_OR_NOT_EXIST,
                   status: HTTP_STATUS.UNAUTHORIZED
                 })
               }
-              req.decoded_refresh_token = decoded_refresh_token
+              ;(req as Request).decoded_refresh_token = decoded_refresh_token
             } catch (err) {
               if (err instanceof JsonWebTokenError) {
                 throw new ErrorWithStatus({
