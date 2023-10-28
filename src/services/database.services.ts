@@ -23,6 +23,7 @@ class DatabaseService {
   // chuyên nghiệp: Collection lúc đầu lưu <document>
   // trong khi mình lưu users
   // đổi lại nhớ inport User
+
   get users(): Collection<User> {
     return this.db.collection(process.env.DB_USERS_COLLECTION as string)
   }

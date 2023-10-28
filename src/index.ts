@@ -1,9 +1,10 @@
-import express from 'express'
+import express, { NextFunction, Request, Response } from 'express'
 import UsersRouter from './routes/users.routes'
 import databaseService from './services/database.services'
+import { defaultErrorHandler } from './middlewares/error.middleware'
 
 const app = express()
-app.use(express.json())
+app.use(express.json()) // 1 middleware
 // dạy cho app tổng cách đọc json vì dữ liệu trả ra là json
 const PORT = 3000
 databaseService.connect()
@@ -15,6 +16,8 @@ app.get('/', (req, res) => {
 
 app.use('/users', UsersRouter)
 //localhost:3000/users/tweet
+
+app.use(defaultErrorHandler)
 
 app.listen(PORT, () => {
   console.log(`Server đang chạy trên port ${PORT}`)
