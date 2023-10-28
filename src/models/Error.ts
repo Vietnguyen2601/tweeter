@@ -19,8 +19,6 @@ export class ErrorWithStatus {
   }
 }
 
-//nó là cái khuôn dùng để
-
 export class EntityError extends ErrorWithStatus {
   errors: ErrorsType
   //truyển message mặc định
