@@ -1,11 +1,12 @@
 import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGES } from '~/constants/message'
 
+//error cần kiểu của lỗi đó và ta cần errortype để định nghĩa nó
 type ErrorsType = Record<
   string,
   {
     msg: string
-    [key: string]: any //này nghĩa ra ngoài ra muốn thêm vào gì thì thêm
+    [key: string]: any //muốn thêm bao nhiêu cũng đc
   }
 >
 
@@ -22,7 +23,7 @@ export class ErrorWithStatus {
 
 export class EntityError extends ErrorWithStatus {
   errors: ErrorsType
-  //truyển message mặt định
+  //truyển message mặc định
   constructor({ message = USERS_MESSAGES.VALIDATION_ERROR, errors }: { message?: string; errors: ErrorsType }) {
     super({ message, status: HTTP_STATUS.UNPROCESSABLE_ENTITY }) //tạo lỗi có status 422
     this.errors = errors

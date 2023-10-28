@@ -17,6 +17,7 @@ app.get('/', (req, res) => {
 app.use('/users', UsersRouter)
 //localhost:3000/users/tweet
 
+//khi app chạy route mà phát sinh lỗi sẽ lập tức ném xún đây
 app.use(defaultErrorHandler)
 
 app.listen(PORT, () => {

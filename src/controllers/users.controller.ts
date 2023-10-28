@@ -9,7 +9,7 @@ export const loginController = async (req: Request, res: Response) => {
   //nếu nó vào đc đây, tức la nó đã đăng nhập thành công
   const { user }: any = req
   const user_id = user._id //Object
-  //server phải tạo ra access_token và refresh_token để đưa cho client
+  //server phải tạo ra access_token và refresh_token để đưa cho client bằng user_id
   const result = await usersService.login(user_id.toString()) //
   return res.json({
     message: 'Login successfully',

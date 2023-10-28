@@ -17,6 +17,8 @@ export const validate = (validation: RunnableValidationChains<ValidationChain>) 
     for (const key in errorObject) {
       //lấy message cuả từng lỗi ra
       const { msg } = errorObject[key]
+      //nếu message có dạng ErrorWithStatus và status !== 422
+      //thì ném cho default error handler
       if (msg instanceof ErrorWithStatus && msg.status !== 422) {
         return next(msg)
       }
