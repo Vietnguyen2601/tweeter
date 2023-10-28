@@ -7,6 +7,7 @@ import { TokenType } from '~/constants/enums'
 import { config } from 'dotenv'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { ObjectId } from 'mongodb'
+import { USERS_MESSAGES } from '~/constants/message'
 config()
 class UsersService {
   //viết hàm nhận vào user_id để bỏ vào payload tạo access token
@@ -67,6 +68,11 @@ class UsersService {
       })
     )
     return { access_token, refresh_token }
+  }
+
+  async logout(refresh_token: string) {
+    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    return { message: USERS_MESSAGES.LOGOUT_SUCCESS }
   }
 }
 

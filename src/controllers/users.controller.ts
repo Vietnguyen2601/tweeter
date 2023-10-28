@@ -29,4 +29,10 @@ export const registerController = async (req: Request<ParamsDictionary, any, Reg
   })
 }
 
-// khả năng có thể bị bug khi đụng đến database nên dùng try-catch
+export const logoutController = async (req: Request, res: Response) => {
+  //láy refresh_token từ req.body
+  const { refresh_token } = req.body
+  //logout: vào database xóa refresh_token này
+  const result = await usersService.logout(refresh_token)
+  res.json(result)
+}
