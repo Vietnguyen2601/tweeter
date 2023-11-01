@@ -250,6 +250,7 @@ export const refreshTokenValidator = validate(
         custom: {
           options: async (value, { req }) => {
             try {
+              //Promise.all: gom 2 hành động lại để đỡ đợi nhau
               const [decoded_refresh_token, refresh_token] = await Promise.all([
                 verifyToken({ token: value }),
                 databaseService.refreshTokens.findOne({

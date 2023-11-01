@@ -10,8 +10,11 @@ export const defaultErrorHandler = (err: any, req: Request, res: Response, next:
   }
   //HTTP_STATUS.INTERNAL_SERVER_ERROR: 500
   //lodash - omit giúp loại bỏ phần tử ko cần thiết trong object
+
+  //Buổi 29
   //nếu không lọt vào if ở trên thì tức là error này là lỗi mặc định
   // name, message, và stack mà 3 thằng này có enumerable = false
+  //duyệt qua mảng các thuộc tính đó trong lỗi và set enumerable về true
   Object.getOwnPropertyNames(err).forEach((key) => Object.defineProperty(err, key, { enumerable: true }))
 
   res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
