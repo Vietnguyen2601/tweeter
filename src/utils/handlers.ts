@@ -1,7 +1,7 @@
 import { NextFunction, RequestHandler, Request, Response } from 'express'
 
-export const wrapAsync = (func: RequestHandler) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+export const wrapAsync = <P>(func: RequestHandler<P>) => {
+  return async (req: Request<P>, res: Response, next: NextFunction) => {
     try {
       await func(req, res, next)
     } catch (error) {
@@ -9,3 +9,5 @@ export const wrapAsync = (func: RequestHandler) => {
     }
   }
 }
+//kĩ thuật generic, có kiẻu dữ liệu đó đó,
+//gán cho thằng cha và các thằng con cũng sẽ đc quy như vậy <P>: params
