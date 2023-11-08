@@ -7,7 +7,7 @@ import { verify } from 'crypto'
 import { Request, Response, NextFunction } from 'express'
 import { ParamSchema, checkSchema } from 'express-validator'
 import { JsonWebTokenError } from 'jsonwebtoken'
-import { capitalize } from 'lodash'
+import { capitalize, values } from 'lodash'
 import { ObjectId } from 'mongodb'
 import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
@@ -125,6 +125,32 @@ const imageSchema: ParamSchema = {
       max: 400
     },
     errorMessage: USERS_MESSAGES.IMAGE_URL_LENGTH_MUST_BE_FROM_1_TO_400
+  }
+}
+
+const userIdSchema: ParamSchema = {
+  custom: {
+    options: async (value: string, { req }) => {
+      //check value có phải objectId hay không?
+      if (!ObjectId.isValid(value)) {
+        throw new ErrorWithStatus({
+          message: USERS_MESSAGES.INVALID_user_id, //trong message.ts thêm INVALID_user_id: 'Invalid user id'followed user id'
+          status: HTTP_STATUS.NOT_FOUND
+        })
+      }
+      //đổi tên biến thành user luôn cho phù hợp
+      const user = await databaseService.users.findOne({
+        _id: new ObjectId(value)
+      })
+      if (user === null) {
+        throw new ErrorWithStatus({
+          message: USERS_MESSAGES.USER_NOT_FOUND, //fix lại cho nó thông báo chung
+          status: HTTP_STATUS.NOT_FOUND
+        })
+      }
+      //nếu vướt qua hết if thì return true
+      return true
+    }
   }
 }
 //lấy dữ liệu trong body
@@ -568,4 +594,20 @@ export const updateMeValidator = validate(
   )
 )
 
-//updateMeValidator
+export const followValidator = validate(
+  checkSchema(
+    {
+      followed_user_id: userIdSchema
+    },
+    ['body']
+  )
+)
+
+export const unfollowValidator = validate(
+  checkSchema(
+    {
+      user_id: userIdSchema
+    },
+    ['params']
+  )
+)

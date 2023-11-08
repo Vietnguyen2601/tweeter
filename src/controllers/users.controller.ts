@@ -1,10 +1,12 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import {
+  FollowReqBody,
   GetProfileReqParams,
   LoginReqBody,
   LogoutReqBody,
   RegisterReqBody,
   TokenPayLoad,
+  UnfollowReqParams,
   UpdateMeReqBody,
   resetPasswordReqBody
 } from '~/models/requests/User.requests'
@@ -162,3 +164,26 @@ export const getProfileController = async (req: Request<GetProfileReqParams>, re
   })
 }
 //nếu controller không đề cập đến body, param, query thì không cần định nghĩa
+
+export const followController = async (
+  req: Request<ParamsDictionary, any, FollowReqBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  //lấy user_id của người dùng từ req.decoded_authorization
+  const { user_id } = req.decoded_authorization as TokenPayLoad
+  //lấy followed_user_id từ req.body
+  const { followed_user_id } = req.body
+  //tiến hành follow
+  const result = await usersService.follow(user_id, followed_user_id)
+  return res.json(result)
+}
+
+export const unfollowController = async (req: Request<UnfollowReqParams>, res: Response, next: NextFunction) => {
+  //lấy user_id từ req.params
+  const { user_id } = req.decoded_authorization as TokenPayLoad
+  const { user_id: followed_user_id } = req.params
+  //tiến hành unfollow
+  const result = await usersService.unFollow(user_id, followed_user_id)
+  return res.json(result)
+}

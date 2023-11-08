@@ -56,5 +56,12 @@ export const USERS_MESSAGES = {
   LOCATION_MUST_BE_A_STRING: 'Location must be a string',
   BIO_MUST_BE_A_STRING: 'Bio must be a string',
   UPDATE_ME_SUCCESS: 'Update me success',
-  GET_PROFILE_SUCCESS: 'Get profile success'
+  GET_PROFILE_SUCCESS: 'Get profile success',
+  INVALID_FOLLOWED_USER_ID: 'Invalid followed user id',
+  FOLLOWED_USER_NOT_FOUND: 'Followed user not found',
+  FOLLOW_SUCCESS: 'Follow success',
+  FOLLOWED: 'Followed',
+  INVALID_user_id: 'Invalid user id',
+  ALREADY_UNFOLLOWED: 'Already unfollowed',
+  UNFOLLOW_SUCCESS: 'Unfollow success'
 } as const

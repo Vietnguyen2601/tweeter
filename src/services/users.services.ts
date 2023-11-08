@@ -11,6 +11,7 @@ import { USERS_MESSAGES } from '~/constants/message'
 import { log } from 'console'
 import { ErrorWithStatus } from '~/models/Error'
 import HTTP_STATUS from '~/constants/httpStatus'
+import { Follower } from '~/models/schemas/Followers.schema'
 config()
 class UsersService {
   //viết hàm nhận vào user_id để bỏ vào payload tạo access token
@@ -88,7 +89,7 @@ class UsersService {
       })
     )
     //giả lập gửi mail
-    // console.log(email_verify_token)
+    console.log(email_verify_token)
     return { access_token, refresh_token }
   }
 
@@ -268,6 +269,52 @@ class UsersService {
       })
     }
     return user
+  }
+
+  async follow(user_id: string, followed_user_id: string) {
+    //kiểm tra xem đã follow hay chưa
+    const isFollowed = await databaseService.followers.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    //nếu đã follow thì return message là đã follow
+    if (isFollowed != null) {
+      return {
+        message: USERS_MESSAGES.FOLLOWED // trong message.ts thêm FOLLOWED: 'Followed'
+      }
+    }
+    //chưa thì thêm 1 document vào collection followers
+    await databaseService.followers.insertOne(
+      new Follower({
+        user_id: new ObjectId(user_id),
+        followed_user_id: new ObjectId(followed_user_id)
+      })
+    )
+    return {
+      message: USERS_MESSAGES.FOLLOW_SUCCESS //trong message.ts thêm   FOLLOW_SUCCESS: 'Follow success'
+    }
+  }
+
+  async unFollow(user_id: string, followed_user_id: string) {
+    //kiểm tra xem đã follow hay chưa
+    const isFollowed = await databaseService.followers.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    //nếu chưa follow thì return message là chưa follow
+    if (isFollowed == null) {
+      return {
+        message: USERS_MESSAGES.ALREADY_UNFOLLOWED // trong message.ts thêm FOLLOWED_USER_NOT_FOUND: 'Followed user not found'
+      }
+    }
+    //chưa thì xóa 1 document vào collection followers
+    await databaseService.followers.deleteOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    return {
+      message: USERS_MESSAGES.UNFOLLOW_SUCCESS //trong message.ts thêm   UNFOLLOW_SUCCESS: 'Unfollow success'
+    }
   }
 }
 
