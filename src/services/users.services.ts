@@ -1,6 +1,6 @@
 import User from '~/models/schemas/User.schema'
 import databaseService from './database.services'
-import { RegisterReqBody, UpdateMeReqBody } from '~/models/requests/User.requests'
+import { RegisterReqBody, TokenPayLoad, UpdateMeReqBody } from '~/models/requests/User.requests'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
 import { TokenType, UserVerifyStatus } from '~/constants/enums'
@@ -315,6 +315,44 @@ class UsersService {
     return {
       message: USERS_MESSAGES.UNFOLLOW_SUCCESS //trong message.ts thêm   UNFOLLOW_SUCCESS: 'Unfollow success'
     }
+  }
+
+  async changePassword(user_id: string, password: string) {
+    await databaseService.users.updateOne(
+      {
+        _id: new ObjectId(user_id)
+      },
+      [
+        {
+          $set: {
+            password: hashPassword(password),
+            forgot_password_token: '',
+            updated_at: '$$NOW'
+          }
+        }
+      ]
+    )
+    return { message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS }
+  }
+
+  async refreshToken({
+    user_id,
+    refresh_token,
+    verify
+  }: {
+    user_id: string
+    refresh_token: string
+    verify: UserVerifyStatus
+  }) {
+    //taoj access_token và refresh_token mới
+    const [access_token, new_refresh_token] = await this.signAccessTokenAndRefreshRoken({ user_id, verify })
+    //xoas refresh_token cũ
+    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    //thêm mới refresh_token mới
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ user_id: new ObjectId(user_id), token: new_refresh_token })
+    )
+    return { access_token, refresh_token: new_refresh_token }
   }
 }
 

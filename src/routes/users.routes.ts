@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import {
+  changePasswordController,
   emailVerifyController,
   followController,
   forgotPasswordController,
@@ -7,6 +8,7 @@ import {
   getProfileController,
   loginController,
   logoutController,
+  refreshController,
   registerController,
   resendEmailVerifyController,
   resetPasswordController,
@@ -17,6 +19,7 @@ import {
 import { filterMiddleware } from '~/middlewares/common.middleware'
 import {
   accessTokenValidator,
+  changePasswordValidator,
   emailVerifyTokenValidator,
   followValidator,
   forgotPasswordValidator,
@@ -168,4 +171,31 @@ UsersRouter.delete(
 )
 
 //unfollowValidator: kiểm tra user_id truyền qua params có hợp lệ hay k?
+/*
+  des: change password
+  path: '/change-password'
+  method: PUT
+  headers: {Authorization: Bearer <access_token>}
+  Body: {old_password: string, password: string, confirm_password: string}
+g}
+  */
+UsersRouter.put(
+  '/change-password',
+  accessTokenValidator,
+  verifiedUserValidator,
+  changePasswordValidator,
+  wrapAsync(changePasswordController)
+)
+//changePasswordValidator kiểm tra các giá trị truyền lên trên body cớ valid k ?
+
+/*
+  des: refreshtoken
+  path: '/refresh-token'
+  method: POST
+  Body: {refresh_token: string}
+g}
+  */
+UsersRouter.post('/refresh-token', refreshTokenValidator, wrapAsync(refreshController))
+//khỏi kiểm tra accesstoken, tại nó hết hạn rồi mà
+//refreshController chưa làm
 export default UsersRouter

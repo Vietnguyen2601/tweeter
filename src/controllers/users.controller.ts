@@ -1,9 +1,11 @@
 import { NextFunction, Request, Response } from 'express'
 import {
+  ChangePasswordReqBody,
   FollowReqBody,
   GetProfileReqParams,
   LoginReqBody,
   LogoutReqBody,
+  RefreshTokenReqBody,
   RegisterReqBody,
   TokenPayLoad,
   UnfollowReqParams,
@@ -20,6 +22,7 @@ import { ObjectId } from 'mongodb'
 import { USERS_MESSAGES } from '~/constants/message'
 import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
+import RefreshToken from '~/models/schemas/RefreshToken.schema'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   //nếu nó vào đc đây, tức la nó đã đăng nhập thành công
@@ -186,4 +189,33 @@ export const unfollowController = async (req: Request<UnfollowReqParams>, res: R
   //tiến hành unfollow
   const result = await usersService.unFollow(user_id, followed_user_id)
   return res.json(result)
+}
+
+export const changePasswordController = async (
+  req: Request<ParamsDictionary, any, ChangePasswordReqBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  //lấy user_id từ req.decoded_authorization
+  const { user_id } = req.decoded_authorization as TokenPayLoad
+  //lấy old_password, new_password, confirm_new_password từ req.body
+  const { password } = req.body as ChangePasswordReqBody
+  //tiến hành changePassword
+  const result = await usersService.changePassword(user_id, password)
+  return res.json(result)
+}
+
+export const refreshController = async (
+  req: Request<ParamsDictionary, any, RefreshTokenReqBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { refresh_token } = req.body
+  //lấy thêm trạng thái verify, user_id của user
+  const { user_id, verify } = req.decoded_refresh_token as TokenPayLoad
+  const result = await usersService.refreshToken({ user_id, refresh_token, verify })
+  return res.json({
+    message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESS,
+    result
+  })
 }

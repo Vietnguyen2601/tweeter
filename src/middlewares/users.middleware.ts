@@ -12,6 +12,7 @@ import { ObjectId } from 'mongodb'
 import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGES } from '~/constants/message'
+import { REGEX_USERNAME } from '~/constants/regex'
 import { ErrorWithStatus } from '~/models/Error'
 import { TokenPayLoad } from '~/models/requests/User.requests'
 import databaseService from '~/services/database.services'
@@ -579,12 +580,21 @@ export const updateMeValidator = validate(
           errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_A_STRING ////messages.ts thêm USERNAME_MUST_BE_A_STRING: 'Username must be a string'
         },
         trim: true,
-        isLength: {
-          options: {
-            min: 1,
-            max: 50
-          },
-          errorMessage: USERS_MESSAGES.USERNAME_LENGTH_MUST_BE_LESS_THAN_50 //messages.ts thêm USERNAME_LENGTH_MUST_BE_LESS_THAN_50: 'Username length must be less than 50'
+
+        custom: {
+          options: async (value, { req }) => {
+            if (REGEX_USERNAME.test(value) === false) {
+              throw new Error(USERS_MESSAGES.USERNAME_IS_INVALID)
+            }
+
+            const user = await databaseService.users.findOne({
+              username: value
+            })
+            if (user) {
+              throw new Error(USERS_MESSAGES.USERNAME_ALREADY_EXISTS)
+            }
+            return true
+          }
         }
       },
       avatar: imageSchema,
@@ -609,5 +619,44 @@ export const unfollowValidator = validate(
       user_id: userIdSchema
     },
     ['params']
+  )
+)
+
+export const changePasswordValidator = validate(
+  checkSchema(
+    {
+      old_password: {
+        ...passwordSchema,
+        custom: {
+          options: async (value, { req }) => {
+            //sau khi qua accessTokenValidator thì req.decode_authorization chứa user_id
+            //lấy user_id đó để tìm user trong database
+            const { user_id } = req.decoded_authorization as TokenPayLoad
+            const user = await databaseService.users.findOne({
+              _id: new ObjectId(user_id)
+            })
+            //nếu trong database không có user thì báo lỗi
+            if (!user) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.USER_NOT_FOUND,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            //nếu có user thì kiểm tra xem password có đúng ko
+            const { password } = req.user
+            if (password !== hashPassword(value)) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.OLD_PASSWORD_IS_INCORRECT,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            return true
+          }
+        }
+      },
+      new_password: passwordSchema,
+      confirm_new_password: confirmPasswordSchema
+    },
+    ['body']
   )
 )
