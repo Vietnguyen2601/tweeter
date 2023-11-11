@@ -67,5 +67,6 @@ export const USERS_MESSAGES = {
   USERNAME_IS_INVALID: 'Username is invalid',
   USERNAME_ALREADY_EXISTS: 'Username already exists',
   OLD_PASSWORD_IS_INCORRECT: 'Old password is incorrect',
-  REFRESH_TOKEN_SUCCESS: 'Refresh token success'
+  REFRESH_TOKEN_SUCCESS: 'Refresh token success',
+  UPLOAD_SUCCESS: 'Upload success'
 } as const
