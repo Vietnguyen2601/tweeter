@@ -5,7 +5,7 @@ import { defaultErrorHandler } from './middlewares/error.middleware'
 import mediaRouter from './routes/medias.routes'
 import { initFolder } from './utils/file'
 import { config } from 'dotenv'
-import { UPLOAD_DIR } from './constants/dir'
+import { UPLOAD_IMAGE_DIR } from './constants/dir'
 import staticRoutes from './routes/static.routes'
 config()
 
@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 
 app.use('/users', UsersRouter)
 app.use('/medias', mediaRouter)
-// app.use('/static', express.static(UPLOAD_DIR))
+// app.use('/static', express.static(UPLOAD_IMAGE_DIR))
 app.use('/static', staticRoutes)
 
 //khi app chạy route mà phát sinh lỗi sẽ lập tức ném xún đây
