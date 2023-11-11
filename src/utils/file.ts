@@ -99,7 +99,7 @@ export const handleUploadVideo = async (req: Request) => {
       //duyệt qua các video
       videos.forEach((video) => {
         const ext = getExtentionFromFullname(video.originalFilename as string) //lấy đuôi tên gốc
-        video.newFilename += `${ext}` //lắp đuôi vào tên mới
+        video.newFilename += `.${ext}` //lắp đuôi vào tên mới
         fs.renameSync(video.filepath, `${video.filepath}.${ext}`) //lắp đuôi vào filepath: đường dẫn đến file mới
       })
       return resolve(files.video as File[])

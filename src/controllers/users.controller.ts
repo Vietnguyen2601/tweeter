@@ -212,8 +212,8 @@ export const refreshController = async (
 ) => {
   const { refresh_token } = req.body
   //lấy thêm trạng thái verify, user_id của user
-  const { user_id, verify } = req.decoded_refresh_token as TokenPayLoad
-  const result = await usersService.refreshToken({ user_id, refresh_token, verify })
+  const { user_id, verify, exp } = req.decoded_refresh_token as TokenPayLoad
+  const result = await usersService.refreshToken({ user_id, refresh_token, verify, exp })
   return res.json({
     message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESS,
     result

@@ -5,8 +5,9 @@ import { defaultErrorHandler } from './middlewares/error.middleware'
 import mediaRouter from './routes/medias.routes'
 import { initFolder } from './utils/file'
 import { config } from 'dotenv'
-import { UPLOAD_IMAGE_DIR } from './constants/dir'
+import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from './constants/dir'
 import staticRoutes from './routes/static.routes'
+import { MongoClient } from 'mongodb'
 config()
 
 const app = express()
@@ -15,7 +16,9 @@ app.use(express.json()) // 1 middleware
 // dạy cho app tổng cách đọc json vì dữ liệu trả ra là json
 const PORT = process.env.PORT || 4000
 initFolder()
-databaseService.connect()
+databaseService.connect().then(() => {
+  databaseService.indexUsers()
+})
 
 app.get('/', (req, res) => {
   res.send('Hello World !')
@@ -23,7 +26,7 @@ app.get('/', (req, res) => {
 
 app.use('/users', UsersRouter)
 app.use('/medias', mediaRouter)
-// app.use('/static', express.static(UPLOAD_IMAGE_DIR))
+// app.use('/static', express.static(UPLOAD_VIDEO_DIR))
 app.use('/static', staticRoutes)
 
 //khi app chạy route mà phát sinh lỗi sẽ lập tức ném xún đây
